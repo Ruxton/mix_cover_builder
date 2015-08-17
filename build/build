@@ -4,7 +4,7 @@ SCRIPTPATH=`pwd -P`
 popd > /dev/null
 
 NAME=buildcover
-VERSION=0.2.1
+VERSION=0.2.2
 MINVERSION=`date -u +%Y%m%d%.H%M%S`
 LDFLAGS="-s -w -X main.MINVERSION ${MINVERSION} -X main.VERSION ${VERSION}"
 OUTFILE=pkg/${VERSION}/${NAME}
