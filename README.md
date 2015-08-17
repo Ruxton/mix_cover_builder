@@ -43,4 +43,4 @@ Using compiled packages:
 Meta
 ----
 
-* Code: `git clone git://github.com/ruxton/mixcloud_uploader.git`
+* Code: `git clone git://github.com/ruxton/mix_cover_builder.git`
