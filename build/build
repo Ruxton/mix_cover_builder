@@ -1,0 +1,15 @@
+#! /bin/bash
+pushd `dirname $0` > /dev/null
+SCRIPTPATH=`pwd -P`
+popd > /dev/null
+
+NAME=buildcover
+VERSION=0.2.1
+MINVERSION=`date -u +%Y%m%d%.H%M%S`
+LDFLAGS="-s -w -X main.MINVERSION ${MINVERSION} -X main.VERSION ${VERSION}"
+OUTFILE=pkg/${VERSION}/${NAME}
+
+GOOS=windows GOARCH=386 go build -ldflags "${LDFLAGS}" -o ${OUTFILE}.exe ${NAME}.go
+GOOS=linux GOARCH=386 go build -ldflags "${LDFLAGS}" -o ${OUTFILE}.linux ${NAME}.go
+GOOS=linux GOARCH=amd64 go build -ldflags "${LDFLAGS}" -o ${OUTFILE}.linux64 ${NAME}.go
+GOOS=darwin GOARCH=amd64 go build -ldflags "${LDFLAGS}" -o ${OUTFILE}.osx ${NAME}.go
