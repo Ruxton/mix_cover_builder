@@ -10,6 +10,7 @@ import (
 	"github.com/ruxton/mix_cover_builder/google"
 	"github.com/ruxton/mix_cover_builder/itunes"
   "github.com/ruxton/mix_cover_builder/parsers"
+  "github.com/ruxton/mix_cover_builder/versions"
 	"github.com/ruxton/term"
 	"image"
 	"image/color"
@@ -22,9 +23,6 @@ import (
 	"strings"
 	"unicode"
 )
-
-var VERSION string
-var MINVERSION string
 
 var DATABASE_FILENAME = "cover_urls.boltdb"
 var DATABASE_BUCKET = []byte("CoverImages")
@@ -289,11 +287,11 @@ func getCoverUrlFromInput() string {
 }
 
 func showWelcomeMessage() {
-	term.OutputMessage(term.Green + "Cover Builder v" + VERSION + term.Reset + "\n\n")
+	term.OutputMessage(term.Green + "Cover Builder v" + versions.VERSION + term.Reset + "\n\n")
 }
 
 func showAboutMessage() {
-	term.OutputMessage(fmt.Sprintf("Build Number: %s\n", MINVERSION))
+	term.OutputMessage(fmt.Sprintf("Build Number: %s\n", versions.MINVERSION))
 	term.OutputMessage("Created by: Greg Tangey (http://ignite.digitalignition.net/)\n")
 	term.OutputMessage("Website: http://www.rhythmandpoetry.net/\n")
 }
