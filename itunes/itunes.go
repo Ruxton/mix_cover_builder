@@ -11,7 +11,7 @@ import (
 )
 
 var ITMS_URL = "http://ax.itunes.apple.com/WebObjects/MZStoreServices.woa/wa/wsSearch?term=%s&country=%s&entity=%s"
-var HTTP_USER_AGENT = ""
+var HTTP_USER_AGENT = "Mix Cover Builder v"+versions.VERSION
 
 func BuildHttpRequest(url string, request string) *http.Request {
 	req, err := http.NewRequest(request, url, nil)
