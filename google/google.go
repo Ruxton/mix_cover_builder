@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/ruxton/term"
+	"net"
 	"net/http"
 	"net/url"
 	"os"
@@ -11,8 +12,26 @@ import (
 	"time"
 )
 
-var GOOGLE_URL = "https://ajax.googleapis.com/ajax/services/search/images?v=1.0&q=%s&rsz=8&start=%d&userip=192.168.1.205"
-var HTTP_USER_AGENT = ""
+var GOOGLE_SEARCH_KEY string
+var GOOGLE_SEARCH_CX string
+var GOOGLE_URL = "https://www.googleapis.com/customsearch/v1?key=%s&cx=%s&searchType=image&q=%s&start=%d&userIp=%s"
+var HTTP_USER_AGENT = "Mix Cover Builder v" + versions.VERSION
+
+func GetLocalIP() string {
+	addrs, err := net.InterfaceAddrs()
+	if err != nil {
+		return ""
+	}
+	for _, address := range addrs {
+		// check the address type and if it is not a loopback the display it
+		if ipnet, ok := address.(*net.IPNet); ok && !ipnet.IP.IsLoopback() {
+			if ipnet.IP.To4() != nil {
+				return ipnet.IP.String()
+			}
+		}
+	}
+	return ""
+}
 
 func BuildHttpRequest(url string, request string) *http.Request {
 	req, err := http.NewRequest(request, url, nil)
@@ -31,17 +50,19 @@ func BuildHttpRequest(url string, request string) *http.Request {
 }
 
 func GetPaginatedCoverFor(artist string, song string, start int) string {
-	query := "site:bandcamp.com " + artist + " - " + song + " bandcamp cover art"
+	query := artist + " - " + song + " cover art"
 
-	cover_search_url := fmt.Sprintf(GOOGLE_URL, url.QueryEscape(query), start)
-
+	local_ip := GetLocalIP()
+	cover_search_url := fmt.Sprintf(GOOGLE_URL, url.QueryEscape(query), GOOGLE_SEARCH_KEY, GOOGLE_SEARCH_CX, start, local_ip)
+	term.OutputMessage(cover_search_url + "\n")
 	request := BuildHttpRequest(cover_search_url, "GET")
 	client := http.Client{}
 	resp, doError := client.Do(request)
-	defer resp.Body.Close()
-
 	if doError != nil {
 		term.OutputError("Error fetching artwork for " + artist + " - " + song + ": " + doError.Error())
+		return ""
+	} else {
+		defer resp.Body.Close()
 	}
 
 	var responseObj *Response = new(Response)
@@ -52,30 +73,35 @@ func GetPaginatedCoverFor(artist string, song string, start int) string {
 		os.Exit(2)
 	}
 
-	var songObj *Result = new(Result)
+	var songObj *ResponseItem = new(ResponseItem)
 
-	if responseObj.Status != 200 {
-		term.OutputError(fmt.Sprintf("Error fetching artwork from google - %d", responseObj.Status))
+	if resp.StatusCode != 200 {
+		term.OutputError(fmt.Sprintf("Error fetching artwork from google - %d\n%v", resp.StatusCode, responseObj))
 	} else {
-		for _, result := range responseObj.Data.Results {
-			if strings.Contains(result.OriginalContextUrl, "bandcamp.com") &&
-				(strings.Contains(result.ContentNoFormatting, "cover art") ||
-					strings.Contains(result.ContentNoFormatting, song) ||
-					strings.Contains(result.TitleNoFormatting, song)) ||
-				(strings.HasPrefix(result.ContentNoFormatting, song[0:15])) {
+
+		text_end := len(song)
+		if text_end > 15 {
+			text_end = 15
+		}
+
+		for _, result := range responseObj.Items {
+			if (strings.Contains(result.Snippet, "cover") ||
+				strings.Contains(result.Snippet, song) ||
+				strings.Contains(result.Title, song)) ||
+				(strings.HasPrefix(result.Snippet, song[0:text_end])) {
 				songObj = &result
 				break
 			}
 		}
 	}
-	if songObj.Url == "" {
+	if songObj.Link == "" {
 		term.OutputMessage(term.Green + "." + term.Reset)
 	}
-	return songObj.Url
+	return songObj.Link
 }
 
 func GetCoverFor(artist string, song string) string {
-	start := 0
+	start := 1
 	steps := 8
 	MAX_STEP := 32
 	url := ""

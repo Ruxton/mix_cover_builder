@@ -1,44 +1,22 @@
 package google
 
 type Response struct {
-	Data    ResponseData `json:"responseData,omitempty"`
-	Details interface{}  `json:"responseDetails,omitempty"`
-	Status  int          `json:"responseStatus,omitempty"`
+	Kind    string         `json:"kind,omitempty"`
+	Url     interface{}    `json:"url,omitempty"`
+	Queries interface{}    `json:"queries,omitempty"`
+	Context interface{}    `json:"queries,omitempty"`
+	Info    interface{}    `json:"searchInformation,omitempty"`
+	Items   []ResponseItem `json:"responseDetails,omitempty"`
 }
 
-type ResponseData struct {
-	Results []Result   `json:"results,omitempty"`
-	Cursor  CursorData `json:"cursor,omitempty"`
-}
-
-type CursorData struct {
-	Count            string `json:"resultCount,omitempty"`
-	Pages            []Page `json:"pages,omitempty"`
-	EstimatedResults string `json:estimatedResultCount,omitempty`
-	CurrentPage      int    `json:currentPageIndex,omitempty`
-	MoreResultsURL   string `json:moreResultsUrl,omitempty`
-	SearchResultTime string `json:searchResultTime,omitempty`
-}
-
-type Page struct {
-	Start string `json:"start,omitempty"`
-	Label int    `json:"label,omitempty"`
-}
-
-type Result struct {
-	GsearchResultClass  string
-	Width               string
-	Height              string
-	ImageId             string
-	TbWidth             string
-	TbHeight            string
-	UnescapedUrl        string
-	Url                 string
-	VisibleUrl          string
-	Title               string
-	TitleNoFormatting   string
-	OriginalContextUrl  string
-	Content             string
-	ContentNoFormatting string
-	TbUrl               string
+type ResponseItem struct {
+	Kind        string      `json:"kind"`
+	Title       string      `json:"title"`
+	HTMLTitle   string      `json:"htmlTitle"`
+	Link        string      `json:"link"`
+	DisplayLink string      `json:"displayLink"`
+	Snippet     string      `json:"snippet"`
+	HTMLSnippet string      `json:"htmlSnippet"`
+	Mime        string      `json:"string"`
+	Image       interface{} `json:"image"`
 }
