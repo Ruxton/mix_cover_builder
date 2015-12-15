@@ -1,2 +1,3 @@
 cover_urls.boltdb
 pkg/
+build/keys.env
