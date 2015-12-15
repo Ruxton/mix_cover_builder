@@ -37,11 +37,12 @@ func GetCoverFor(artist string, song string) string {
 	request := BuildHttpRequest(cover_search_url, "GET")
 	client := http.Client{}
 	resp, doError := client.Do(request)
-	defer resp.Body.Close()
-
 	if doError != nil {
 		term.OutputError("Error fetching artwork for " + artist + " - " + song + ": " + doError.Error())
-	}
+    return ""
+	} else {
+    defer resp.Body.Close()
+  }
 
 	var responseObj *Response = new(Response)
 
