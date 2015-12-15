@@ -3,13 +3,26 @@ pushd `dirname $0` > /dev/null
 SCRIPTPATH=`pwd -P`
 popd > /dev/null
 
+if [[ ! -f $SCRIPTPATH/keys.env ]]; then
+  echo "Please make an oauth_client.env from the sample file"
+  echo .
+  exit 1
+fi
+
+source $SCRIPTPATH/keys.env
+
 NAME=buildcover
-VERSION=0.2.2
+VERSION=0.2.3
 MINVERSION=`date -u +%Y%m%d%.H%M%S`
-LDFLAGS="-s -w -X main.MINVERSION ${MINVERSION} -X main.VERSION ${VERSION}"
+
+LDFLAGS="-s -w -X github.com/ruxton/mix_cover_builder/versions.MINVERSION=${MINVERSION} -X github.com/ruxton/mix_cover_builder/versions.VERSION=${VERSION} -X github.com/ruxton/mix_cover_builder/google.GOOGLE_SEARCH_KEY=${GOOGLE_SEARCH_KEY} -X github.com/ruxton/mix_cover_builder/google.GOOGLE_SEARCH_CX=${GOOGLE_SEARCH_CX}"
 OUTFILE=pkg/${VERSION}/${NAME}
 
-GOOS=windows GOARCH=386 go build -ldflags "${LDFLAGS}" -o ${OUTFILE}.exe ${NAME}.go
-GOOS=linux GOARCH=386 go build -ldflags "${LDFLAGS}" -o ${OUTFILE}.linux ${NAME}.go
-GOOS=linux GOARCH=amd64 go build -ldflags "${LDFLAGS}" -o ${OUTFILE}.linux64 ${NAME}.go
-GOOS=darwin GOARCH=amd64 go build -ldflags "${LDFLAGS}" -o ${OUTFILE}.osx ${NAME}.go
+echo "Building Windows i386..."
+GOOS=windows GOARCH=386 go build -a -ldflags "${LDFLAGS}" -o ${OUTFILE}.exe ${NAME}.go
+echo "Building Linux i386..."
+GOOS=linux GOARCH=386 go build -a -ldflags "${LDFLAGS}" -o ${OUTFILE}.linux ${NAME}.go
+echo "Building Linux amd64..."
+GOOS=linux GOARCH=amd64 go build -a -ldflags "${LDFLAGS}" -o ${OUTFILE}.linux64 ${NAME}.go
+echo "Building Darwin/OSX amd64..."
+GOOS=darwin GOARCH=amd64 go build -a -ldflags "${LDFLAGS}" -o ${OUTFILE}.osx ${NAME}.go
