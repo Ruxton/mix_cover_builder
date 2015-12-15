@@ -5,17 +5,16 @@ import (
 	"fmt"
 	"github.com/boltdb/bolt"
 	"github.com/disintegration/imaging"
-	"github.com/mattn/go-colorable"
 	. "github.com/ruxton/mix_cover_builder/confirm"
 	. "github.com/ruxton/mix_cover_builder/data"
 	"github.com/ruxton/mix_cover_builder/google"
 	"github.com/ruxton/mix_cover_builder/itunes"
+  "github.com/ruxton/mix_cover_builder/parsers"
 	"github.com/ruxton/term"
 	"image"
 	"image/color"
 	"image/draw"
 	"image/jpeg"
-	"io"
 	flag "launchpad.net/gnuflag"
 	"net/http"
 	"os"
@@ -27,16 +26,13 @@ import (
 var VERSION string
 var MINVERSION string
 
-var STD_OUT = bufio.NewWriter(colorable.NewColorableStdout())
-var STD_ERR = bufio.NewWriter(colorable.NewColorableStderr())
-var STD_IN = bufio.NewReader(os.Stdin)
-
 var DATABASE_FILENAME = "cover_urls.boltdb"
 var DATABASE_BUCKET = []byte("CoverImages")
 var DEFAULT_OUTPUT_FILENAME = "output.jpg"
 
 var aboutFlag = flag.Bool("about", false, "About the application")
 var trackListFlag = flag.String("tracklist", "", "A file containing a tracklist")
+var trackListTypeFlag = flag.String("tracklist-type", "basic", "A file containing a tracklist (basic,virtualdj,serato)")
 var outputFileFlag = flag.String("output", "", "The file to output the generate cover to")
 var overlayFlag = flag.String("overlay", "", "A file to overlay on top of the generated image")
 
@@ -155,7 +151,24 @@ func GetCover(db *bolt.DB, index int, artistTrack *ArtistTrack) bool {
 		FetchImage(artistTrack)
 		term.OutputImageUrl(artistTrack.Tracks[0].Cover, "Image.jpg")
 		term.OutputMessage("Is this the correct image? (y/n) ")
-		return AskForConfirmation()
+		if(AskForConfirmation()) {
+			return true
+		} else {
+			artistTrack.Tracks[0].Cover = getCoverUrlFromInput()
+			if(artistTrack.Tracks[0].Cover == "") {
+				return false
+			} else {
+        FetchImage(artistTrack)
+        term.OutputImageUrl(artistTrack.Tracks[0].Cover, "Image.jpg")
+        term.OutputMessage("Is this the correct image? (y/n) ")
+				if(AskForConfirmation()) {
+          InsertData(db, artist, track, artistTrack.Tracks[0].Cover)
+          return true
+        } else {
+          return false
+        }
+			}
+		}
 	} else {
 		return false
 	}
@@ -267,7 +280,7 @@ func getCoverUrl(db *bolt.DB, artist string, track string) string {
 
 func getCoverUrlFromInput() string {
 	term.OutputMessage("Enter a URL the cover image: ")
-	cover_url, err := STD_IN.ReadString('\n')
+	cover_url, err := term.STD_IN.ReadString('\n')
 	if err != nil {
 		term.OutputError("Error accepting input.")
 		os.Exit(2)
@@ -286,7 +299,6 @@ func showAboutMessage() {
 }
 
 func parseTracklist(tracklist *string) []Track {
-	var list []Track
 
 	fin, err := os.Open(*tracklist)
 	if err != nil {
@@ -297,33 +309,16 @@ func parseTracklist(tracklist *string) []Track {
 
 	bufReader := bufio.NewReader(fin)
 
-	for line, _, err := bufReader.ReadLine(); err != io.EOF; line, _, err = bufReader.ReadLine() {
-		data := strings.SplitN(string(line), " : ", 2)
-		trackdata := strings.SplitN(data[1], " - ", 2)
-		if len(trackdata) != 2 {
-			term.OutputError("Error parsing track " + string(data[1]))
-			term.OutputMessage("Please enter an artist for this track: ")
-			artist, err := STD_IN.ReadString('\n')
-			if err != nil {
-				term.OutputError("Incorrect artist entry.")
-				os.Exit(2)
-			}
-			term.OutputMessage("Please enter a name for this track: ")
-			track, err := STD_IN.ReadString('\n')
-			if err != nil {
-				term.OutputError("Incorrect track name entry.")
-				os.Exit(2)
-			}
+  var list []Track
 
-			trackdata = []string{artist, track}
-		}
+  if( *trackListTypeFlag == "basic" ) {
+    list = parsers.ParseBasicTracklist(bufReader)
+  } else if *trackListTypeFlag == "virtualdj" {
+    list = parsers.ParseVirtualDJTracklist(bufReader)
+  } else if *trackListTypeFlag == "serato" {
+    parsers.ParseSeratoTracklist(bufReader)
+  }
 
-		thistrack := new(Track)
-		thistrack.Artist = trackdata[0]
-		thistrack.Song = trackdata[1]
-
-		list = append(list, *thistrack)
-	}
 
 	return list
 }
