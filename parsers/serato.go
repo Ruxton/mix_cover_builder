@@ -1,12 +1,12 @@
 package parsers
 
 import (
-  "github.com/ruxton/term"
-  "bufio"
-  "os"
+	"bufio"
+	"github.com/ruxton/term"
+	"os"
 )
 
 func ParseSeratoTracklist(bufReader *bufio.Reader) {
-  term.OutputError("Serato tracklist parsing unsupported")
-  os.Exit(2)
+	term.OutputError("Serato tracklist parsing unsupported")
+	os.Exit(2)
 }

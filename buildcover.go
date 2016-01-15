@@ -9,8 +9,8 @@ import (
 	. "github.com/ruxton/mix_cover_builder/data"
 	"github.com/ruxton/mix_cover_builder/google"
 	"github.com/ruxton/mix_cover_builder/itunes"
-  "github.com/ruxton/mix_cover_builder/parsers"
-  "github.com/ruxton/mix_cover_builder/versions"
+	"github.com/ruxton/mix_cover_builder/parsers"
+	"github.com/ruxton/mix_cover_builder/versions"
 	"github.com/ruxton/term"
 	"image"
 	"image/color"
@@ -149,22 +149,22 @@ func GetCover(db *bolt.DB, index int, artistTrack *ArtistTrack) bool {
 		FetchImage(artistTrack)
 		term.OutputImageUrl(artistTrack.Tracks[0].Cover, "Image.jpg")
 		term.OutputMessage("Is this the correct image? (y/n) ")
-		if(AskForConfirmation()) {
+		if AskForConfirmation() {
 			return true
 		} else {
 			artistTrack.Tracks[0].Cover = getCoverUrlFromInput()
-			if(artistTrack.Tracks[0].Cover == "") {
+			if artistTrack.Tracks[0].Cover == "" {
 				return false
 			} else {
-        FetchImage(artistTrack)
-        term.OutputImageUrl(artistTrack.Tracks[0].Cover, "Image.jpg")
-        term.OutputMessage("Is this the correct image? (y/n) ")
-				if(AskForConfirmation()) {
-          InsertData(db, artist, track, artistTrack.Tracks[0].Cover)
-          return true
-        } else {
-          return false
-        }
+				FetchImage(artistTrack)
+				term.OutputImageUrl(artistTrack.Tracks[0].Cover, "Image.jpg")
+				term.OutputMessage("Is this the correct image? (y/n) ")
+				if AskForConfirmation() {
+					InsertData(db, artist, track, artistTrack.Tracks[0].Cover)
+					return true
+				} else {
+					return false
+				}
 			}
 		}
 	} else {
@@ -307,16 +307,15 @@ func parseTracklist(tracklist *string) []Track {
 
 	bufReader := bufio.NewReader(fin)
 
-  var list []Track
+	var list []Track
 
-  if( *trackListTypeFlag == "basic" ) {
-    list = parsers.ParseBasicTracklist(bufReader)
-  } else if *trackListTypeFlag == "virtualdj" {
-    list = parsers.ParseVirtualDJTracklist(bufReader)
-  } else if *trackListTypeFlag == "serato" {
-    parsers.ParseSeratoTracklist(bufReader)
-  }
-
+	if *trackListTypeFlag == "basic" {
+		list = parsers.ParseBasicTracklist(bufReader)
+	} else if *trackListTypeFlag == "virtualdj" {
+		list = parsers.ParseVirtualDJTracklist(bufReader)
+	} else if *trackListTypeFlag == "serato" {
+		parsers.ParseSeratoTracklist(bufReader)
+	}
 
 	return list
 }

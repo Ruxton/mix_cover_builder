@@ -3,6 +3,7 @@ package itunes
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/ruxton/mix_cover_builder/versions"
 	"github.com/ruxton/term"
 	"net/http"
 	"net/url"
@@ -11,7 +12,7 @@ import (
 )
 
 var ITMS_URL = "http://ax.itunes.apple.com/WebObjects/MZStoreServices.woa/wa/wsSearch?term=%s&country=%s&entity=%s"
-var HTTP_USER_AGENT = "Mix Cover Builder v"+versions.VERSION
+var HTTP_USER_AGENT = "Mix Cover Builder v" + versions.VERSION
 
 func BuildHttpRequest(url string, request string) *http.Request {
 	req, err := http.NewRequest(request, url, nil)
@@ -39,10 +40,10 @@ func GetCoverFor(artist string, song string) string {
 	resp, doError := client.Do(request)
 	if doError != nil {
 		term.OutputError("Error fetching artwork for " + artist + " - " + song + ": " + doError.Error())
-    return ""
+		return ""
 	} else {
-    defer resp.Body.Close()
-  }
+		defer resp.Body.Close()
+	}
 
 	var responseObj *Response = new(Response)
 
