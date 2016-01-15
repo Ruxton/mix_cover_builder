@@ -3,6 +3,7 @@ package google
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/ruxton/mix_cover_builder/versions"
 	"github.com/ruxton/term"
 	"net"
 	"net/http"
@@ -53,8 +54,7 @@ func GetPaginatedCoverFor(artist string, song string, start int) string {
 	query := artist + " - " + song + " cover art"
 
 	local_ip := GetLocalIP()
-	cover_search_url := fmt.Sprintf(GOOGLE_URL, url.QueryEscape(query), GOOGLE_SEARCH_KEY, GOOGLE_SEARCH_CX, start, local_ip)
-	term.OutputMessage(cover_search_url + "\n")
+	cover_search_url := fmt.Sprintf(GOOGLE_URL, GOOGLE_SEARCH_KEY, GOOGLE_SEARCH_CX, url.QueryEscape(query), start, local_ip)
 	request := BuildHttpRequest(cover_search_url, "GET")
 	client := http.Client{}
 	resp, doError := client.Do(request)
@@ -78,12 +78,10 @@ func GetPaginatedCoverFor(artist string, song string, start int) string {
 	if resp.StatusCode != 200 {
 		term.OutputError(fmt.Sprintf("Error fetching artwork from google - %d\n%v", resp.StatusCode, responseObj))
 	} else {
-
 		text_end := len(song)
 		if text_end > 15 {
 			text_end = 15
 		}
-
 		for _, result := range responseObj.Items {
 			if (strings.Contains(result.Snippet, "cover") ||
 				strings.Contains(result.Snippet, song) ||

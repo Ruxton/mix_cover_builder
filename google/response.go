@@ -4,9 +4,9 @@ type Response struct {
 	Kind    string         `json:"kind,omitempty"`
 	Url     interface{}    `json:"url,omitempty"`
 	Queries interface{}    `json:"queries,omitempty"`
-	Context interface{}    `json:"queries,omitempty"`
+	Context interface{}    `json:"context,omitempty"`
 	Info    interface{}    `json:"searchInformation,omitempty"`
-	Items   []ResponseItem `json:"responseDetails,omitempty"`
+	Items   []ResponseItem `json:"items,omitempty"`
 }
 
 type ResponseItem struct {
