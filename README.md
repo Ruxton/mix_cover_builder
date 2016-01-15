@@ -28,6 +28,10 @@ Source Requirements
 Using From Source
 --------------------------------
 
+  1. [Register your own google custom search](https://cse.google.com/cse/create/new)
+  1. [Register your own google developer key](https://console.developers.google.com/project/_/apiui/credential)
+  1. Copy build/keys.env.sample to build/keys.env
+  1. Edit build/keys.env to contain your keys regsitered above
   1. Run bin/build
   1. Run the built packages as below from pkg/
 

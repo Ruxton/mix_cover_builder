@@ -12,7 +12,7 @@ fi
 source $SCRIPTPATH/keys.env
 
 NAME=buildcover
-VERSION=0.2.3
+VERSION=0.3.0-DEV
 MINVERSION=`date -u +%Y%m%d%.H%M%S`
 
 LDFLAGS="-s -w -X github.com/ruxton/mix_cover_builder/versions.MINVERSION=${MINVERSION} -X github.com/ruxton/mix_cover_builder/versions.VERSION=${VERSION} -X github.com/ruxton/mix_cover_builder/google.GOOGLE_SEARCH_KEY=${GOOGLE_SEARCH_KEY} -X github.com/ruxton/mix_cover_builder/google.GOOGLE_SEARCH_CX=${GOOGLE_SEARCH_CX}"
